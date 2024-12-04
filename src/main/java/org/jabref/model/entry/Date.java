@@ -281,7 +281,7 @@ public class Date {
      * @param dateString the string which contain era indicator to extract the date information
      * @return the date information with TemporalAccessor type
      */
-    private static TemporalAccessor parseDateWithEraIndicator(String dateString) {
+    public static TemporalAccessor parseDateWithEraIndicator(String dateString) {
         String yearString = dateString.strip().substring(0, dateString.length() - 2);
 
         String[] parts = yearString.split("-");

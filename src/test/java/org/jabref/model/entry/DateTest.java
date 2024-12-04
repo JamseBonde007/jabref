@@ -9,6 +9,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.Temporal;
+import java.time.temporal.TemporalAccessor;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -20,6 +21,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DateTest {
     private static Stream<Arguments> validDates() {
@@ -123,4 +125,40 @@ class DateTest {
     void parseDateNull() {
         assertThrows(NullPointerException.class, () -> Date.parse(null));
     }
+
+    @Test
+    void testParseDateWithEraIndicator_YearOnly() {
+        String input = "2024 TT";
+        TemporalAccessor result = Date.parseDateWithEraIndicator(input);
+        assertTrue(result instanceof Year, "Expected a Year object.");
+        assertEquals(2024, ((Year) result).getValue(), "The year should be 2024.");
+    }
+
+    @Test
+    void testParseDateWithEraIndicator_YearAndMonth() {
+        String input = "2024-11 TT";
+        TemporalAccessor result = Date.parseDateWithEraIndicator(input);
+        assertTrue(result instanceof YearMonth, "Expected a YearMonth object.");
+        YearMonth yearMonth = (YearMonth) result;
+        assertEquals(2024, yearMonth.getYear(), "The year should be 2024.");
+        assertEquals(11, yearMonth.getMonthValue(), "The month should be 11.");
+    }
+
+    @Test
+    void testParseDateWithEraIndicator_BC() {
+        String input = "500 BC";
+        TemporalAccessor result = Date.parseDateWithEraIndicator(input);
+        assertTrue(result instanceof Year, "Expected a Year object.");
+        assertEquals(-499, ((Year) result).getValue(), "The year should be -499 for 500 BC.");
+    }
+
+    @Test
+    void testParseDateWithEraIndicator_VariousFormats() {
+        String input1 = "2024-03-4"; // správny formát
+        TemporalAccessor result1 = Date.parseDateWithEraIndicator(input1);
+        assertTrue(result1 instanceof YearMonth);
+        assertEquals(2024, ((YearMonth) result1).getYear());
+        assertEquals(3, ((YearMonth) result1).getMonthValue());
+    }
+
 }

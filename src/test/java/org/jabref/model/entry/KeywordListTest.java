@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class KeywordListTest {
 
@@ -114,5 +115,58 @@ class KeywordListTest {
     @Test
     void mergeTwoListsOfKeywordsShouldReturnTheKeywordsMerged() {
         assertEquals(new KeywordList("Figma", "Adobe", "JabRef", "Eclipse", "JetBrains"), KeywordList.merge("Figma, Adobe, JetBrains, Eclipse", "Adobe, JabRef", ','));
+    }
+
+    @Test
+    void replaceExistingKeyword() {
+        KeywordList keywordsToReplace = new KeywordList();
+        keywordsToReplace.add("keywordTwo");
+        Keyword newValue = new Keyword("newKeyword");
+
+        keywords.replaceAll(keywordsToReplace, newValue);
+
+        assertEquals(new KeywordList("keywordOne", "newKeyword"), keywords);
+    }
+
+    @Test
+    void addNewKeywordWhenNoReplacementFound() {
+        KeywordList keywordsToReplace = new KeywordList();
+        keywordsToReplace.add("nonExistentKeyword");
+        Keyword newValue = new Keyword("newKeyword");
+
+        keywords.replaceAll(keywordsToReplace, newValue);
+
+        assertEquals(new KeywordList("keywordOne", "keywordTwo", "newKeyword"), keywords);
+    }
+
+    @Test
+    void replaceMultipleOccurrencesOfKeyword() {
+        keywords.add("keywordTwo");
+        KeywordList keywordsToReplace = new KeywordList();
+        keywordsToReplace.add("keywordTwo");
+        Keyword newValue = new Keyword("newKeyword");
+
+        keywords.replaceAll(keywordsToReplace, newValue);
+
+        assertEquals(new KeywordList("keywordOne", "newKeyword"), keywords);
+    }
+
+    @Test
+    void replaceAllThrowsNullPointerExceptionWhenNewValueIsNull() {
+        KeywordList keywordsToReplace = new KeywordList();
+        keywordsToReplace.add("keywordOne");
+
+        assertThrows(NullPointerException.class, () -> keywords.replaceAll(keywordsToReplace, null));
+    }
+
+    @Test
+    void replaceNonExistentKeywordDoesNotAffectList() {
+        KeywordList keywordsToReplace = new KeywordList();
+        keywordsToReplace.add("nonExistentKeyword");
+        Keyword newValue = new Keyword("newKeyword");
+
+        keywords.replaceAll(keywordsToReplace, newValue);
+
+        assertEquals(new KeywordList("keywordOne", "keywordTwo", "newKeyword"), keywords);
     }
 }
